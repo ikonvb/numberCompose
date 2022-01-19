@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.konstantinbulygin.numbercomposer.databinding.FragmentGameFinishedBinding
 import com.konstantinbulygin.numbercomposer.domain.entity.GameResult
-import com.konstantinbulygin.numbercomposer.presentation.ChooseLevelFragment.Companion.CHOOSE_LEVEL_NAME
 import com.konstantinbulygin.numbercomposer.presentation.GameFragment.Companion.GAME_NAME
 
 class GameFinishedFragment : Fragment() {
@@ -43,6 +42,10 @@ class GameFinishedFragment : Fragment() {
                     retryGame()
                 }
             })
+        gameFinishedBinding.buttonRetry.setOnClickListener {
+            retryGame()
+        }
+
     }
 
     override fun onDestroyView() {
@@ -51,7 +54,9 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun parseArgs() {
-        gameResult = requireArguments().getSerializable(KEY_GAME_RESULT) as GameResult
+       requireArguments().getParcelable<GameResult>(KEY_GAME_RESULT)?.let {
+           gameResult = it
+       }
     }
 
     private fun retryGame() {
@@ -65,7 +70,7 @@ class GameFinishedFragment : Fragment() {
         fun getNewInstance(gameResult: GameResult): GameFinishedFragment {
             return GameFinishedFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(KEY_GAME_RESULT, gameResult)
+                    putParcelable(KEY_GAME_RESULT, gameResult)
                 }
             }
         }
