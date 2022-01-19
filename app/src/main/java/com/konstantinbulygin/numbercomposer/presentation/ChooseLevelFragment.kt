@@ -29,16 +29,16 @@ class ChooseLevelFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         with(chooseLevelBinding) {
             buttonLevelTest.setOnClickListener {
-                launchGameFragment(com.konstantinbulygin.numbercomposer.domain.entity.Level.TEST)
+                launchGameFragment(Level.TEST)
             }
             buttonLevelEasy.setOnClickListener {
-                launchGameFragment(com.konstantinbulygin.numbercomposer.domain.entity.Level.EASY)
+                launchGameFragment(Level.EASY)
             }
             buttonLevelNormal.setOnClickListener {
-                launchGameFragment(com.konstantinbulygin.numbercomposer.domain.entity.Level.NORMAL)
+                launchGameFragment(Level.NORMAL)
             }
             buttonLevelHard.setOnClickListener {
-                launchGameFragment(com.konstantinbulygin.numbercomposer.domain.entity.Level.HARD)
+                launchGameFragment(Level.HARD)
             }
         }
     }
