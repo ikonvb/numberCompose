@@ -58,10 +58,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val gameResult: LiveData<GameResult>
         get() = _gameResult
 
-    private fun startGame(level: Level) {
+    fun startGame(level: Level) {
         getGameSettings(level)
         startTimer()
         getQuestion()
+        updateProgress()
     }
 
     private fun updateProgress() {
@@ -80,10 +81,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun calculatePercentOfRightAnswers(): Int {
+        if (countOfQuestions == 0) {
+            return 0
+        }
         return ((countOfRightAnswers.toDouble() / countOfQuestions) * 100).toInt()
     }
 
-    private fun chooseAnswer(number: Int) {
+    fun chooseAnswer(number: Int) {
         checkAnswer(number)
         updateProgress()
         getQuestion()
