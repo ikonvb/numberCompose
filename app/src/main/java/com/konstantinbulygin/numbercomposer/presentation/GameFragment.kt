@@ -1,19 +1,39 @@
 package com.konstantinbulygin.numbercomposer.presentation
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import com.konstantinbulygin.numbercomposer.R
 import com.konstantinbulygin.numbercomposer.databinding.FragmentGameBinding
 import com.konstantinbulygin.numbercomposer.domain.entity.GameResult
-import com.konstantinbulygin.numbercomposer.domain.entity.GameSettings
 import com.konstantinbulygin.numbercomposer.domain.entity.Level
 
 class GameFragment : Fragment() {
 
+    private val tvOptions by lazy {
+        mutableListOf<TextView>().apply {
+            add(gameBinding.tvOption1)
+            add(gameBinding.tvOption2)
+            add(gameBinding.tvOption3)
+            add(gameBinding.tvOption4)
+            add(gameBinding.tvOption5)
+            add(gameBinding.tvOption6)
+        }
+    }
     private lateinit var level: Level
+    private val viewModel: GameViewModel by lazy {
+        ViewModelProvider(
+            this,
+            AndroidViewModelFactory.getInstance(requireActivity().application)
+        )[GameViewModel::class.java]
+    }
 
     private var _gameBinding: FragmentGameBinding? = null
     private val gameBinding: FragmentGameBinding
@@ -36,23 +56,67 @@ class GameFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(gameBinding) {
-            tvSum.setOnClickListener {
-                launchGameFinishedFragment(
-                    GameResult(
-                        true,
-                        30,
-                        30,
-                        GameSettings(
-                            0,
-                            0,
-                            0,
-                            10
-                        )
-                    )
-                )
+        observeViewModel()
+        viewModel.startGame(level)
+        setClickListenersToOptions()
+    }
+
+    private fun setClickListenersToOptions() {
+        for (tvOption in tvOptions) {
+            tvOption.setOnClickListener {
+                viewModel.chooseAnswer(tvOption.text.toString().toInt())
             }
         }
+    }
+
+    private fun observeViewModel() {
+        //
+        viewModel.question.observe(viewLifecycleOwner) {
+            gameBinding.tvSum.text = it.sum.toString()
+            gameBinding.tvLeftNumber.text = it.visibleNumber.toString()
+            for (i in 0 until tvOptions.size) {
+                tvOptions[i].text = it.options[i].toString()
+            }
+        }
+
+        viewModel.percentOfRightAnswers.observe(viewLifecycleOwner) {
+            gameBinding.progressBar.setProgress(it, true)
+        }
+
+        viewModel.enoughCountOfRightAnswers.observe(viewLifecycleOwner) {
+            val color = getColorByState(it)
+            gameBinding.tvAnswersProgress.setTextColor(color)
+        }
+
+        viewModel.enoughPercentOfRightAnswers.observe(viewLifecycleOwner) {
+            val color = getColorByState(it)
+            gameBinding.progressBar.progressTintList = ColorStateList.valueOf(color)
+        }
+
+        viewModel.formattedTime.observe(viewLifecycleOwner) {
+            gameBinding.tvTimer.text = it
+        }
+
+        viewModel.minPercent.observe(viewLifecycleOwner) {
+            gameBinding.progressBar.secondaryProgress = it
+        }
+        viewModel.gameResult.observe(viewLifecycleOwner) {
+            launchGameFinishedFragment(it)
+        }
+        viewModel.progressAnswers.observe(viewLifecycleOwner) {
+            gameBinding.tvAnswersProgress.text = it
+        }
+
+    }
+
+    private fun getColorByState(it: Boolean): Int {
+        val coloResId = if (it) {
+            android.R.color.holo_green_light
+        } else {
+            android.R.color.holo_red_light
+        }
+
+        return ContextCompat.getColor(requireContext(), coloResId)
     }
 
     override fun onDestroyView() {
