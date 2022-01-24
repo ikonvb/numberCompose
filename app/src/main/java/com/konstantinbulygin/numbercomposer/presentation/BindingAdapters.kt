@@ -1,7 +1,11 @@
 package com.konstantinbulygin.numbercomposer.presentation
 
+import android.content.Context
+import android.content.res.ColorStateList
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import com.konstantinbulygin.numbercomposer.R
 import com.konstantinbulygin.numbercomposer.domain.entity.GameResult
@@ -57,4 +61,40 @@ private fun getSmileResId(winner: Boolean): Int {
     } else {
         R.drawable.ic_sad
     }
+}
+
+@BindingAdapter("enoughCountOfRightAnswers")
+fun bindEnoughCountOfRightAnswers(textView: TextView, enough: Boolean) {
+    textView.setTextColor(getColorByState(textView.context, enough))
+}
+
+@BindingAdapter("enoughCountOfPercent")
+fun bindEnoughCountOfPercent(progressBar: ProgressBar, enough: Boolean) {
+    progressBar.progressTintList =
+        ColorStateList.valueOf(getColorByState(progressBar.context, enough))
+}
+
+private fun getColorByState(context: Context, it: Boolean): Int {
+    val coloResId = if (it) {
+        android.R.color.holo_green_light
+    } else {
+        android.R.color.holo_red_light
+    }
+    return ContextCompat.getColor(context, coloResId)
+}
+
+@BindingAdapter("numberAsText")
+fun bindNumberAsText(textView: TextView, number: Int) {
+    textView.text = number.toString()
+}
+
+@BindingAdapter("onOptionClickListener")
+fun bindOnOptionClickListener(textView: TextView, clickListener: OnOptionClickListener) {
+    textView.setOnClickListener {
+        clickListener.onOptionClick(textView.text.toString().toInt())
+    }
+}
+
+interface OnOptionClickListener {
+    fun onOptionClick(option: Int)
 }
